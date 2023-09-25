@@ -1,0 +1,21 @@
+name: ZAP Full Scan
+on : 
+     push: 
+      branches: [development]
+     pull_request:
+      branches: [development]
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    steps:     
+    - name: OWASP ZAP Full Scan 
+  # You may pin to the exact commit or the version.
+  # uses: zaproxy/action-full-scan@e058236b1221595033527ccc8a79959c7396d53f
+      uses: zaproxy/action-full-scan@v0.7.0
+      with:
+    # GitHub Token to create issues in the repository
+    
+    # Target URL
+       target: "https://front.questionnaire.ip-poc.com/app/home"
+    # Relative path of the ZAP configuration file
+   
