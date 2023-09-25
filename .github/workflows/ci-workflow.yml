@@ -45,7 +45,7 @@ jobs:
       - name: Run ZAP API Scan
         uses: zaproxy/action-baseline@v1
         with:
-          target: "http://your-api-url"  # Replace with your API URL
+          target: "https://front.questionnaire.ip-poc.com/app/home"  # Replace with your API URL
           htmlreport: true
           run: sudo docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf
         # run: sudo docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-api-scan.py -t dev-wiki-api.json -f openapi -r test_report_$(date -u +'%Y%m%d').html
