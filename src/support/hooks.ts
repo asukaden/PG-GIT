@@ -68,7 +68,7 @@ BeforeAll(async function (this: ICustomWorld) {
     }
   }
 
-  context1 = await browser.newContext();
+  context1 = await browser.newContext({ acceptDownloads: true });
   page1 = await context1.newPage();
   // context2 = await browser.newContext();
   // page2 = await context2.newPage();
@@ -137,7 +137,7 @@ After(async function (this: ICustomWorld, { result }: ITestCaseHookParameter) {
     // }
     // this.page?.close();
     // this.context?.close();
-    ScenarioContext.destroy();
+    //ScenarioContext.destroy();
   }
 });
 

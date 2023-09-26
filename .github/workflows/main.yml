@@ -18,4 +18,7 @@ jobs:
     # Target URL
        target: "https://front.questionnaire.ip-poc.com/app/home"
     # Relative path of the ZAP configuration file
+       path: |
+          zap_report.json
+          zap_report.html
    

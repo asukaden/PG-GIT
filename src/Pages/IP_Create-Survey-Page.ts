@@ -8,6 +8,8 @@ import FieldConfig from '../utils/FieldConfig';
 import { BasePage } from '../utils/BasePage';
 import { config } from '../support/config';
 import { Locator, Page } from '@playwright/test';
+import { expect } from '@playwright/test';
+const fs = require('fs')
 
 
 // import ScenarioContext from '../support/ScenarioContext';
@@ -66,12 +68,39 @@ export default class SurveyCreation extends BasePage {
     // await this.LaunchAppWithNewContext1();
     await this.page1.goto(config.BASE_URL);
 
+const filePath = 'qrcode.csv';  // Replace with your file path
+
+const data = fs.readFileSync(filePath, 'utf-8');
+const lines = data.split('\n');
+
+
+    for (let i = 0; i < 2;i++) {
+    await this.page1.goto("https://www.the-qrcode-generator.com/");
+    
+    await this.page1.locator("//*[@data-attr='txt-tab']").click();
+    await this.page1.locator("//*[@data-attr='txt-tab']").click();
+
+
+    await this.page1.locator("(//*[@class='MuiInputBase-input MuiInput-input MuiInputBase-inputMultiline css-10oer18'])[1]").fill(lines);
+    await this.page1.locator("//*[@data-testid='DownloadIcon']").click();
+    await this.page1.locator("//*[@class='MuiInputBase-input MuiInput-input css-mnn31']").fill("qrname");
+
+const [ download ] = await Promise.all([
+        this.page1.waitForEvent('download'),
+ 
+    await this.page1.locator("//*[@type='submit']").click()
+
+     ]);
+
+     const suggestedFileName = download.suggestedFilename()
+  const filePath = 'qrcode/' + suggestedFileName + i
+  await download.saveAs(filePath)
+  expect(fs.existsSync(filePath)).toBeTruthy()
+  
 
 
 
-
-
-  }
+  }}
 
 
 
