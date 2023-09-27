@@ -54,6 +54,8 @@ jobs:
         run: echo ${pwd}
       - name: Pull ZAP OWASP Image
         run: docker pull owasp/zap2docker-weekly
+      - name: Debug ZAP Docker Command
+        run: sudo docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf --debug
       - name: Run ZAP API Scan
         uses: zaproxy/action-full-scan@v0.7.0
         with:
