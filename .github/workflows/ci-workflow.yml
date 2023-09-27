@@ -45,17 +45,13 @@ jobs:
 
       - name: Check Docker image availability
         run: docker images
-
-      - name: Check Docker configuration
-        run: docker info
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Log current directory
         run: echo ${pwd}
-      - name: Pull ZAP OWASP Image
-        run: docker pull owasp/zap2docker-weekly
-      - name: Debug ZAP Docker Command
-        run: sudo docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf -d
+      # - name: Pull ZAP OWASP Image
+      #   run: docker pull owasp/zap2docker-weekly
+      
       - name: Run ZAP API Scan
         uses: zaproxy/action-full-scan@v0.7.0
         with:
