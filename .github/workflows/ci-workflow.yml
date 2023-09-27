@@ -53,7 +53,7 @@ jobs:
       #   run: docker pull owasp/zap2docker-weekly
       
       - name: Run ZAP API Scan
-        uses: zaproxy/action-full-scan@v0.7.0
+        uses: zaproxy/action-api-scan@v0.5.0
         with:
           target: "https://front.questionnaire.ip-poc.com/app/home"  # Replace with your API URL
           htmlreport: true
