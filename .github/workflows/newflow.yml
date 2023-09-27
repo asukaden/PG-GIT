@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches: [ "development" ]
+  pull_request:
+    branches: [ "development" ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.7.0
+        with:
+          target: "https://front.paymentgateway.ip-poc.com/app/payment-summary"
+
+      - name: Send API Request with PUT method
+        run: |
+          # Define the API endpoint and payload
+          API_URL="https://bff.questionnaire.ip-poc.com/bff/surveys/status"
+          PAYLOAD='{"surveyId":"2c53ae57-072c-419b-a1d2-a15610c590e9","surveyStatus":5,"process":"survey_status_update"}'
+          
+          # Send a PUT request to the API
+          curl -X PUT -H "Content-Type: application/json" -d "$PAYLOAD" "$API_URL"
+
+      - name: OWASP ZAP Scan PUT Request
+        uses: zaproxy/action-scan@v0.2.0
+        with:
+          target: "$API_URL"
+          zap-options: "-X PUT -H \"Content-Type: application/json\" -d \"$PAYLOAD\""
