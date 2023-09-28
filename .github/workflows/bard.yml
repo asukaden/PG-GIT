@@ -1,9 +1,9 @@
-name: CI
+name: CI-gpt
 on:
   push:
-    branches: ['develop']
+    branches: ['development']
   pull_request:
-    branches: ['develop']
+    branches: ['development']
   workflow_dispatch:
 
 jobs:
