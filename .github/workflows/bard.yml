@@ -1,4 +1,4 @@
-name: CI-2
+name: CI-Project
 on:
   push:
     branches: ['development']
@@ -15,7 +15,7 @@ jobs:
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.7.0
         with:
-          targets: 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge,https://bff.paymentgateway.ip-poc.com/bff/v1/jcb-charge,https://additional-target-url1,https://additional-target-url2'
+          targets: 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge,https://bff.paymentgateway.ip-poc.com/bff/v1/jcb-charge'
 
       - name: Save Scan Reports
         run: |
