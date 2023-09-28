@@ -18,8 +18,8 @@ jobs:
           targets: |
             https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge,
             https://bff.paymentgateway.ip-poc.com/bff/v1/jcb-charge,
-            https://additional-target-url1,
-            https://additional-target-url2
+            # https://additional-target-url1,
+            # https://additional-target-url2
             # Add as many additional target URLs as needed
 
       - name: Save Scan Reports
