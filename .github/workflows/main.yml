@@ -21,4 +21,4 @@ jobs:
         uses: zaproxy/action-baseline@v0.7.0
         with:
           # Target URL
-          target: "https://front.paymentgateway.ip-poc.com/app/payment-summary"
+          target: "https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge"
