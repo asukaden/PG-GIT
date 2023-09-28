@@ -55,7 +55,7 @@ jobs:
       - name: Run ZAP API Scan
         uses: zaproxy/action-api-scan@v0.5.0
         with:
-          target: targets.txt  # Replace with your API URL
+          target: https://front.questionnaire.ip-poc.com/app/survey,https://front.paymentgateway.ip-poc.com/app/payment-summary  # Replace with your API URLtarget: https://front.questionnaire.ip-poc.com/app/survey  # Replace with your API URL
           htmlreport: true
           path: |
            zap_report.json
