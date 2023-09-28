@@ -1,0 +1,2 @@
+https://front.paymentgateway.ip-poc.com/app/payment-summary
+https://front.questionnaire.ip-poc.com/app/survey
