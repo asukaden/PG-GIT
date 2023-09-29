@@ -5,21 +5,23 @@ on:
   pull_request:
     branches: ['development']
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Read targets from file
-        id: targets
+      - name: Read target URLs from file
+        id: read-targets
         run: |
-          echo "::set-output name=TARGETS::$(cat ./targets.txt)"
+          TARGETS=$(cat targets.txt)
+          echo "::set-output name=TARGETS::$TARGETS"
 
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.7.0
         with:
-          targets: ${{ steps.targets.outputs.TARGETS }}
+          targets: ${{ steps.read-targets.outputs.TARGETS }}
 
       - name: Save Scan Report
         run: |
