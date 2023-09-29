@@ -23,9 +23,9 @@ jobs:
       - name: OWASP ZAP Baseline Scan
         run: |
           for target in ${{ steps.split_targets.outputs.SPLIT_TARGETS }}; do
-            echo "Scanning target: $target"
-            zap-baseline.py -t $target
-            mv zap-baseline-report.html $(echo zap-baseline-report-$target-$(date +"%Y%m%d%H%M%S").html)
+          echo "Scanning target: $target"
+          zap-baseline -t $target
+          mv zap-baseline-report.html $(echo zap-baseline-report-$target-$(date +"%Y%m%d%H%M%S").html)
           done
 
       - name: Check for Issues in Scan Reports
