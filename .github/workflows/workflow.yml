@@ -17,13 +17,11 @@ jobs:
           target: 'https://front.questionnaire.ip-poc.com/app/survey'
 
       - name: Save Scan Report
-        run: |
-          # Rename the report file to something unique
-          mv zap-baseline-report.html myreport-$(date +"%Y%m%d%H%M%S").html
+        run: mv zap-baseline-report.html myreport-$(date +"%Y%m%d%H%M%S").html
 
       - name: Check for Issues in Scan Report
         run: |
-          # Assuming you have a script to check the report for issues (e.g., using a tool like grep)
+          # Assuming you have a script to check the report for issues
           if grep -q 'Vulnerability Found' myreport*.html; then
             echo "Security issues found in the scan report."
             exit 1  # Exit with an error code to stop the workflow
