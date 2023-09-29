@@ -8,8 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
     steps:
       - uses: actions/checkout@v3
 
@@ -33,9 +31,14 @@ jobs:
             echo "No security issues found in the scan report."
           fi
 
-      - name: Publish Scan Report (if no security issues found)
-        if: ${{ failure() == false }}
-        uses: actions/upload-artifact@v2
+      - name: Prevent push if workflow fails
+        uses: actions/github-script@v5
         with:
-          name: zap-scan-report
-          path: myreport*.html
+          script: |
+            const branchProtectionRule = await github.request('GET /repos/{owner}/{repo}/branches/development/protection');
+            if (branchProtectionRule.data.required_status_checks.enforcement === 'none') {
+              core.setFailed('Please enable branch protection for the development branch.');
+              exit 1;
+            }
+          # Disable the `fail-fast` setting, so that the workflow will continue to execute even if this step fails
+          fail-fast: false
