@@ -167,10 +167,11 @@ public async addoptionclick(){
 
 public async exclusivetogglebutton(){
   await this.locatorShouldBePresent(this.exclusivetoggle);
+   await this.locatorShouldBePresent(this.exclusivetoggle);
   //await this.exclusivetoggle.click();
 }
 
-// It is published with issue 3 thengaa
+// It is published with issue 3 thengaa dfc
 
 
 

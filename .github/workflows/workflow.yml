@@ -29,12 +29,22 @@ jobs:
             if (report.includes('Vulnerability Found')) {
               // Security issues found, fail the workflow
               core.setFailed('Security issues found in the OWASP ZAP Baseline Scan.');
+
+              // Prevent the workflow from publishing the code to GitHub
+              core.setOutput('allow-publish', false);
             }
           # Disable the `fail-fast` setting, so that the workflow will continue to execute even if this step fails
           fail-fast: false
 
+      - name: Publish Scan Report
+        if: ${{ steps.check-for-issues.outputs.allow-publish == true }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-scan-report
+          path: myreport*.html
+
       - name: Fail the workflow if security issues found
-        if: ${{ failure() }}
+        if: ${{ steps.check-for-issues.outputs.allow-publish == false }}
         run: |
           echo "Security issues found in the OWASP ZAP Baseline Scan. Code push canceled."
           exit 1
