@@ -5,50 +5,35 @@ on:
   pull_request:
     branches: ['development']
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: OWASP ZAP Baseline Scan - Target 1
-        uses: zaproxy/action-baseline@v0.7.0
-        with:
-          target: 'https://front.paymentgateway.ip-poc.com/app/payment-summary'
-
-      - name: Save Scan Report - Target 1
-        run: mv zap-baseline-report.html myreport-gmo-$(date +"%Y%m%d%H%M%S").html
-
-      - name: OWASP ZAP Baseline Scan - Target 2
+      - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.7.0
         with:
           target: 'https://front.questionnaire.ip-poc.com/app/survey'
 
-      - name: Save Scan Report - Target 2
-        run: mv zap-baseline-report.html myreport-jcb-$(date +"%Y%m%d%H%M%S").html
+      - name: Save Scan Report
+        run: |
+          # Rename the report file to something unique
+          mv zap-baseline-report.html myreport-$(date +"%Y%m%d%H%M%S").html
 
-      - name: Check for Issues in Scan Reports
+      - name: Check for Issues in Scan Report
         run: |
           # Assuming you have a script to check the report for issues (e.g., using a tool like grep)
-          issues_found=false
-          for report in myreport*.html; do
-            if grep -q 'Vulnerability Found' "$report"; then
-              issues_found=true
-            fi
-          done
-
-          if $issues_found; then
-            echo "Security issues found in the scan reports."
+          if grep -q 'Vulnerability Found' myreport*.html; then
+            echo "Security issues found in the scan report."
             exit 1  # Exit with an error code to stop the workflow
           else
-            echo "No security issues found in the scan reports."
+            echo "No security issues found in the scan report."
           fi
 
-      - name: Publish Scan Reports
+      - name: Publish Scan Report
         if: failure() == false
         uses: actions/upload-artifact@v2
         with:
-          name: zap-scan-reports
+          name: zap-scan-report
           path: myreport*.html
