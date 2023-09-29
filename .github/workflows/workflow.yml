@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches: 
-      - 'development'
+      - 'develop'
   pull_request:
     branches: 
-      - 'development'
+      - 'develop'
   workflow_dispatch:
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       - name: Check for Issues in Scan Reports
         run: |
           for target in ${{ matrix.targets }}; do
-            if grep -q 'Vulnerability Found' "zap-scan-report-${target//[:\/]/_}-"*.html; then
+            if grep -q 'Vulnerability Found' "zap-scan-report-${target//[:\/]/_}-$(date +"%Y%m%d%H%M%S").html"; then
               echo "Security issues found in the scan report for target: $target."
               exit 1 # Exit with an error code to stop the workflow
             else
