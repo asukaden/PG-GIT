@@ -12,9 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install OWASP ZAP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jre-headless
+          wget https://github.com/zaproxy/zaproxy/releases/download/v2.11.0/ZAP_2.11.0_Linux.tar.gz
+          tar -zxvf ZAP_2.11.0_Linux.tar.gz
+          export PATH=$PATH:$(pwd)/ZAP_2.11.0
+          zap.sh -version  # Verify ZAP installation
+
       - name: Set up targets
         id: targets
-        run: echo "::set-output name=TARGETS::https://front.paymentgateway.ip-poc.com/app/payment-summary,https://front.questionnaire.ip-poc.com/app/survey"
+        run: echo "::set-output name=TARGETS::https://front.questionnaire.ip-poc.com/app/survey,https://front.paymentgateway.ip-poc.com/app/payment-summary,https://front.questionnaire.ip-poc.com/app/survey"
 
       - name: Split targets
         id: split_targets
@@ -23,9 +32,9 @@ jobs:
       - name: OWASP ZAP Baseline Scan
         run: |
           for target in ${{ steps.split_targets.outputs.SPLIT_TARGETS }}; do
-          echo "Scanning target: $target"
-          zap-baseline -t $target
-          mv zap-baseline-report.html $(echo zap-baseline-report-$target-$(date +"%Y%m%d%H%M%S").html)
+            echo "Scanning target: $target"
+            zap-baseline -t $target
+            mv zap-baseline-report.html $(echo zap-baseline-report-$target-$(date +"%Y%m%d%H%M%S").html)
           done
 
       - name: Check for Issues in Scan Reports
