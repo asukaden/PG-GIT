@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches: 
-      - 'development'
+      - 'develop'
   pull_request:
     branches: 
-      - 'development'
+      - 'develop'
   workflow_dispatch:
 
 jobs:
@@ -22,11 +22,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Create ZAP Workspace Directory
+        run: mkdir -p ${{ github.workspace }}/zap-wrk
+
+      - name: Copy ZAP YAML Configuration
+        run: cp path/to/your/zap.yaml ${{ github.workspace }}/zap-wrk/zap.yaml
+
       - name: OWASP ZAP Baseline Scan
         id: zap-scan
         uses: zaproxy/action-baseline@v0.7.0
         with:
           target: ${{ matrix.targets }}
+          config: ${{ github.workspace }}/zap-wrk/zap.yaml  # Use the YAML from the workspace
 
       - name: Save Scan Reports
         run: |
