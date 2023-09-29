@@ -22,12 +22,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Create ZAP Workspace Directory
-        run: mkdir -p ${{ github.workspace }}/zap-wrk
-
-      - name: Copy ZAP YAML Configuration
-        run: cp path/to/your/zap.yaml ${{ github.workspace }}/zap-wrk/zap.yaml
-
       - name: OWASP ZAP Baseline Scan
         id: zap-scan
         uses: zaproxy/action-baseline@v0.7.0
@@ -37,14 +31,15 @@ jobs:
 
       - name: Save Scan Reports
         run: |
+          mkdir -p ${{ github.workspace }}/scan-reports
           for target in ${{ matrix.targets }}; do
-            mv zap-baseline-report.html "zap-scan-report-${target//[:\/]/_}-$(date +"%Y%m%d%H%M%S").html"
+            mv zap-baseline-report.html ${{ github.workspace }}/scan-reports/zap-scan-report-${target//[:\/]/_}-$(date +"%Y%m%d%H%M%S").html
           done
 
       - name: Check for Issues in Scan Reports
         run: |
           for target in ${{ matrix.targets }}; do
-            if grep -q 'Vulnerability Found' "zap-scan-report-${target//[:\/]/_}-$(date +"%Y%m%d%H%M%S").html"; then
+            if grep -q 'Vulnerability Found' "${{ github.workspace }}/scan-reports/zap-scan-report-${target//[:\/]/_}-$(date +"%Y%m%d%H%M%S").html"; then
               echo "Security issues found in the scan report for target: $target."
               exit 1 # Exit with an error code to stop the workflow
             else
@@ -58,4 +53,4 @@ jobs:
         with:
           name: zap-scan-reports
           path: |
-            zap-scan-report-*.html
+            scan-reports/
