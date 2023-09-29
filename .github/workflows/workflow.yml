@@ -12,27 +12,25 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: OWASP ZAP Baseline Scan - Target
-        uses: zaproxy/action-baseline@v0.7.0
-        with:
-          target: 'https://front.questionnaire.ip-poc.com/app/survey'
+      - name: Set up targets
+        id: targets
+        run: echo "::set-output name=TARGETS::https://front.paymentgateway.ip-poc.com/app/payment-summary,https://front.questionnaire.ip-poc.com/app/survey"
 
-      - name: Save Target Scan Report
+      - name: Split targets
+        id: split_targets
+        run: echo "::set-output name=SPLIT_TARGETS::$(echo ${{ steps.targets.outputs.TARGETS }} | tr ',' '\n')"
+
+      - name: OWASP ZAP Baseline Scan
         run: |
-          mv zap-baseline-report.html target-report-$(date +"%Y%m%d%H%M%S").html
-
-      - name: OWASP ZAP Full Scan - Code
-        uses: zaproxy/action-full-scan@v0.7.0
-        with:
-          target: ${{ github.repository }}
-
-      - name: Save Code Scan Report
-        run: |
-          mv full-scan-report.html code-report-$(date +"%Y%m%d%H%M%S").html
+          for target in ${{ steps.split_targets.outputs.SPLIT_TARGETS }}; do
+            echo "Scanning target: $target"
+            zap-baseline.py -t $target
+            mv zap-baseline-report.html $(echo zap-baseline-report-$target-$(date +"%Y%m%d%H%M%S").html)
+          done
 
       - name: Check for Issues in Scan Reports
         run: |
-          if grep -q 'Vulnerability Found' *.html; then
+          if grep -q 'Vulnerability Found' zap-baseline-report-*.html; then
             echo "Security issues found in the scan reports."
             exit 1  # Exit with an error code to stop the workflow
           else
