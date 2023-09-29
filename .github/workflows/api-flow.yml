@@ -20,7 +20,7 @@ jobs:
 
       - name: Make API Request
         run: |
-          curl --location '${{ 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge' }}' \
+          curl --location '${{ 'https://bff.paymentgateway.ip-poc.com/bff/v1/dgft-charge' }}' \
           --header 'Content-Type: application/json' \
           --data-raw '{
               "address": {
