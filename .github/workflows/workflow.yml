@@ -5,54 +5,40 @@ on:
   pull_request:
     branches: ['development']
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install OWASP ZAP
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openjdk-11-jre-headless
-          wget https://github.com/zaproxy/zaproxy/releases/download/v2.11.0/ZAP_2.11.0_Linux.tar.gz
-          tar -zxvf ZAP_2.11.0_Linux.tar.gz
-          export PATH=$PATH:$(pwd)/ZAP_2.11.0
-          zap.sh -version  # Verify ZAP installation
-
-      - name: Set up targets
+      - name: Read targets from file
         id: targets
-        run: echo "::set-output name=TARGETS::https://front.questionnaire.ip-poc.com/app/survey,https://front.paymentgateway.ip-poc.com/app/payment-summary,https://front.questionnaire.ip-poc.com/app/survey"
-
-      - name: Split targets
-        id: split_targets
-        run: echo "::set-output name=SPLIT_TARGETS::$(echo ${{ steps.targets.outputs.TARGETS }} | tr ',' '\n')"
+        run: |
+          echo "::set-output name=TARGETS::$(cat ./targets.txt)"
 
       - name: OWASP ZAP Baseline Scan
-        run: |
-          for target in ${{ steps.split_targets.outputs.SPLIT_TARGETS }}; do
-            echo "Scanning target: $target"
-            zap-baseline -t $target
-            mv zap-baseline-report.html $(echo zap-baseline-report-$target-$(date +"%Y%m%d%H%M%S").html)
-          done
+        uses: zaproxy/action-baseline@v0.7.0
+        with:
+          targets: ${{ steps.targets.outputs.TARGETS }}
 
-      - name: Check for Issues in Scan Reports
+      - name: Save Scan Report
         run: |
-          if grep -q 'Vulnerability Found' zap-baseline-report-*.html; then
-            echo "Security issues found in the scan reports."
-            exit 1  # Exit with an error code to stop the workflow
+          # Rename the report file to something unique
+          mv zap-baseline-report.html myreport-$(date +"%Y%m%d%H%M%S").html
+
+      - name: Check for Issues in Scan Report
+        run: |
+          # Assuming you have a script to check the report for issues (e.g., using a tool like grep)
+          if grep -q 'Vulnerability Found' myreport*.html; then
+            echo "Security issues found in the scan report."
+            exit 1 # Exit with an error code to stop the workflow
           else
-            echo "No security issues found in the scan reports."
+            echo "No security issues found in the scan report."
           fi
 
-      - name: Prevent push if workflow fails
-        uses: actions/github-script@v5
+      - name: Publish Scan Report
+        if: failure() == false
+        uses: actions/upload-artifact@v2
         with:
-          script: |
-            const branchProtectionRule = await github.request('GET /repos/{owner}/{repo}/branches/development/protection');
-            if (branchProtectionRule.data.required_status_checks.enforcement === 'none') {
-              core.setFailed('Please enable branch protection for the development branch.');
-              exit 1;
-            }
-          fail-fast: false
+          name: zap-scan-report
+          path: myreport*.html
