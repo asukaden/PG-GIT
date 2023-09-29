@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
     steps:
       - uses: actions/checkout@v3
 
@@ -22,29 +24,18 @@ jobs:
           mv zap-baseline-report.html myreport-$(date +"%Y%m%d%H%M%S").html
 
       - name: Check for Issues in Scan Report
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const report = fs.readFileSync('myreport*.html', 'utf8');
-            if (report.includes('Vulnerability Found')) {
-              // Security issues found, fail the workflow
-              core.setFailed('Security issues found in the OWASP ZAP Baseline Scan.');
+        run: |
+          # Assuming you have a script to check the report for issues (e.g., using a tool like grep)
+          if grep -q 'Vulnerability Found' myreport*.html; then
+            echo "Security issues found in the scan report."
+            exit 1  # Exit with an error code to stop the workflow
+          else
+            echo "No security issues found in the scan report."
+          fi
 
-              // Prevent the workflow from publishing the code to GitHub
-              core.setOutput('allow-publish', false);
-            }
-          # Disable the `fail-fast` setting, so that the workflow will continue to execute even if this step fails
-          fail-fast: false
-
-      - name: Publish Scan Report
-        if: ${{ steps.check-for-issues.outputs.allow-publish == true }}
+      - name: Publish Scan Report (if no security issues found)
+        if: ${{ failure() == false }}
         uses: actions/upload-artifact@v2
         with:
           name: zap-scan-report
           path: myreport*.html
-
-      - name: Fail the workflow if security issues found
-        if: ${{ steps.check-for-issues.outputs.allow-publish == false }}
-        run: |
-          echo "Security issues found in the OWASP ZAP Baseline Scan. Code push canceled."
-          exit 1
