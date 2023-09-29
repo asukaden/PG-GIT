@@ -1,6 +1,6 @@
 name: CI
 on:
-  push: 
+  push:
     branches: ['development']
   pull_request:
     branches: ['development']
@@ -31,9 +31,15 @@ jobs:
             echo "No security issues found in the scan report."
           fi
 
-      - name: Publish Scan Report
-        if: failure()
+      - name: Publish Scan Report (if no security issues found)
+        if: ${{ failure() == false }}
         uses: actions/upload-artifact@v2
         with:
           name: zap-scan-report
           path: myreport*.html
+
+      - name: Fail the workflow if security issues found
+        if: ${{ failure() }}
+        run: |
+          echo "Security issues found in the OWASP ZAP Baseline Scan. Code push canceled."
+          exit 1
