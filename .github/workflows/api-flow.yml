@@ -1,22 +1,56 @@
-name: CI-9968
+name: CI chat
+
 on:
-  push: 
+  push:
     branches: ['development']
   pull_request:
     branches: ['development']
   workflow_dispatch:
+    inputs:
+      api-url:
+        description: 'API URL'
+        required: true
+        default: 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge'
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
+      - name: Make API Request
+        run: |
+          curl --location '${{ inputs.api-url }}' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "address": {
+                  "city": "Malapurem",
+                  "country": "392",
+                  "email": "hafis@gmail.com",
+                  "line1": "eeeeee",
+                  "line2": "rerer",
+                  "line3": "rererere",
+                  "name": "Hafis",
+                  "phone": "5555555555",
+                  "postalCode": "1500043",
+                  "state": "013"
+              },
+              "amount": "1000",
+              "chargeType": "1",
+              "currency": "JPY",
+              "deviceType": "1",
+              "locale": "ja_JP",
+              "maskedCardNo": "377752*******04",
+              "paymentGatewayType": "DGFT",
+              "paymentMethod": "1",
+              "token": "0a22cc7e-08f1-47de-9d05-03dd6992b561",
+              "transactionType": "1"
+          }'
+
       - name: OWASP ZAP Baseline Scan
-       
-        uses: zaproxy/action-api-scan@v0.5.0
+        uses: zaproxy/action-baseline@v0.7.0
         with:
-          format: openapi
-          target: 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge'
+          target: '${{ inputs.api-url }}'
 
       - name: Save Scan Report
         run: |
