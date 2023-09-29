@@ -5,6 +5,7 @@ on:
   pull_request:
     branches: ['development']
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,8 +21,9 @@ jobs:
         run: mv zap-baseline-report.html myreport-$(date +"%Y%m%d%H%M%S").html
 
       - name: Check for Issues in Scan Report
+        id: security_check
         run: |
-          # Assuming you have a script to check the report for issues
+          # Assuming you have a script to check the report for issues (e.g., using a tool like grep)
           if grep -q 'Vulnerability Found' myreport*.html; then
             echo "Security issues found in the scan report."
             exit 1  # Exit with an error code to stop the workflow
@@ -29,15 +31,13 @@ jobs:
             echo "No security issues found in the scan report."
           fi
 
-      - name: Publish Scan Report (if no security issues found)
-        if: ${{ failure() == false }}
+      - name: Publish Scan Report
+        if: steps.security_check.outcome == 'success'
         uses: actions/upload-artifact@v2
         with:
           name: zap-scan-report
           path: myreport*.html
 
       - name: Fail the workflow if security issues found
-        if: ${{ failure() }}
-        run: |
-          echo "Security issues found in the OWASP ZAP Baseline Scan. Code push canceled."
-          exit 1
+        if: steps.security_check.outcome == 'failure'
+        run: exit 1
