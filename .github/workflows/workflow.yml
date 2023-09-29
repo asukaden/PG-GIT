@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches: 
-      - 'develop'
+      - 'development'
   pull_request:
     branches: 
-      - 'develop'
+      - 'development'
   workflow_dispatch:
 
 jobs:
