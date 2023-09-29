@@ -1,10 +1,16 @@
-name: CI
+name: CI-news
+
 on:
   push: 
     branches: ['development']
   pull_request:
     branches: ['development']
   workflow_dispatch:
+    inputs:
+      api-url:
+        description: 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge'
+        required: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,7 +20,7 @@ jobs:
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.7.0
         with:
-          target: 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge'
+          target: ${{ secrets.API_URL }}
 
       - name: Save Scan Report
         run: |
