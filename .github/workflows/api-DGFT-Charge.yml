@@ -1,4 +1,4 @@
-name: CI chat
+name: CI DGFT Charge
 
 on:
   push:

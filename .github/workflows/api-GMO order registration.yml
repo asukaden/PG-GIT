@@ -1,0 +1,88 @@
+name: CI DGFT
+
+on:
+  push:
+    branches: ['development']
+  pull_request:
+    branches: ['development']
+  workflow_dispatch:
+    inputs:
+      api-url:
+        description: 'API URL'
+        required: true
+        default: 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Make API Request
+        run: |
+          curl --location 'https://bff.paymentgateway.ip-poc.com/bff/v1/gmo-charge' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+            "order": {
+              "amount": "1000",
+              "currency": "JPY",
+              "transactionType": "1",
+              "address": {
+                "name": "見本 太郎",
+                "line1": "道玄坂1丁目2-3",
+                "line2": "渋谷ビル1F",
+                "line3": "1号室",
+                "city": "渋谷区",
+                "state": "001",
+                "postCode": "150-0043",
+                "country": "392"
+              }
+            },
+            "payer": {
+              "name": "見本 太郎",
+              "nameKana": "ミホン　タロウ",
+              "nameAlphabet": "Taro Mihon",
+              "email": "taro.mihon@example.com",
+              "phones": {
+                "type": "1",
+                "countryCode": "81",
+                "number": "09012345678"
+              },
+              "accountId": "account_123",
+              "ip": "172.16.0.1",
+              "deviceType": "1",
+              "locale": "ja_JP"
+            },
+            "cardToken": "b2040c0f07431c181252ed6fc89e985ea217a480a170ed755ed3ee86cd79c536",
+            "paymentMethod": "1",
+            "paymentGatewayType": "GMO",
+            "chargeType": "1",
+            "maskedCardNo": "410000*******000"
+          }'
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.7.0
+        with:
+          target: '${{ inputs.api-url }}'
+
+      - name: Save Scan Report
+        run: |
+          # Rename the report file to something unique
+          mv zap-baseline-report.html myreport-$(date +"%Y%m%d%H%M%S").html
+
+      - name: Check for Issues in Scan Report
+        run: |
+          # Assuming you have a script to check the report for issues (e.g., using a tool like grep)
+          if grep -q 'Vulnerability Found' myreport*.html; then
+            echo "Security issues found in the scan report."
+            exit 1  # Exit with an error code to stop the workflow
+          else
+            echo "No security issues found in the scan report."
+          fi
+
+      - name: Publish Scan Report
+        if: failure() == false
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-scan-report
+          path: myreport*.html
